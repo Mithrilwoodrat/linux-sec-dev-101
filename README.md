@@ -1,2 +1,4 @@
 # linux-sec-dev-101
-code to protect linux systems
+notes of protectiing linux systems
+
+https://www.ossec.net/about/
