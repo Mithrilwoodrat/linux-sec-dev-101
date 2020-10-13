@@ -27,6 +27,16 @@ osquery 支持目录和文件的监控，并且支持使用 wilchard 通配符�
 
  * auditd [/osquery/tables/events/linux/process_file_events.h](https://github.com/osquery/osquery/blob/29f4694df214bc3bd4e7210873e05bb19374888b/osquery/tables/events/linux/process_file_events.h#L181) process_events 同样也会有文件读写记录，从安全监控角度看这块数据更全更有价值。
 
+ ### wazuh
+
+wazuh fim 对应实现模块名为 syscheck
+
+https://github.com/wazuh/wazuh/blob/master/src/syscheckd/main.c
+
+* inotify https://github.com/wazuh/wazuh/blob/master/src/syscheckd/run_realtime.c#L87
+
+* auditd https://github.com/wazuh/wazuh/blob/5bf35eef46/src/syscheckd/syscheck_audit.c
+
 
 ## inotify
 
