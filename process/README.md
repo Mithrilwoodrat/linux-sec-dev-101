@@ -28,7 +28,9 @@ Sessions and process groups are just ways to treat a number of related processes
 
 tty 分为终端和伪终端（pseudoterminal），伪终端可以同时处理终端login以及网络 login
 
-## session group
+## APUE
+
+### session group
 
 ![apue-会话组](/imgs/apue-sessions-1.png)
 
@@ -43,9 +45,49 @@ session 是一个或多个进程组的集合。 shell 管道会把多个进程�
 
 如果调用 setsid 的进程已经是进程组组长则会返回错误。
 
-## 控制终端
+### 控制终端
 
 网络登录 (如 sshd ) 对应的为 pts
+
+* 一个会话 session 可以有一个控制终端
+* 建立与控制终端连接的会话首进程为控制进程 (controlling process)
+* 一个会话中的几个进程组可以被分为一个前台进程组 (foregroud process group) 以及一个或几个后台进程组 (backgroup process gourp)。
+* 如果一个会话有一个控制终端，则它有一个前台进程组，会话中其他的进程则为后台进程组
+* 无论何时键入终端中断键(DELETE或Ctrl+C)，会将中断信号发给前台进程组所有进程
+* 无论何时键入终端退出键(Ctrl+\)，会将退出信号发给前台进程组
+* 终端检测到网络中断时，会将挂断信号发给控制进程
+
+![apue-会话组](/imgs/apue-terminal-1.png)
+
+服务器上，非ssh登录直接启动的进程组(前台、后台) session id 的组成情况不可控， 不能用 session id 来找到子进程的最初启动进程。参考下面例子中 crond 子进程组的情况。
+
+### shell 运行程序
+
+```
+ps  xfao pid,ppid,pgid,sid,tty,comm |cat
+  PID  PPID  PGID   SID TT       COMMAND
+    1     0     1     1 ?        init
+   20     1    20    20 tty1     init
+   21    20    21    20 tty1      \_ bash
+   34    21    34    20 tty1          \_ ps
+   35    21    34    20 tty1          \_ cat
+```
+
+shell 启动的 ps 和 cat 都在一个前台进程组中
+
+
+```
+$ sleep 100 &
+$ ps  xfao pid,ppid,pgid,sid,tty,comm | cat 
+  PID  PPID  PGID   SID TT       COMMAND
+    1     0     1     1 ?        init
+   20     1    20    20 tty1     init
+   21    20    21    20 tty1      \_ bash
+   67    21    67    20 tty1          \_ sleep
+   68    21    68    20 tty1          \_ ps
+   69    21    68    20 tty1          \_ cat
+```
+先启动一个 sleep 后台进程，再执行 ps 可以看到bash子进程中有 67 后 68 两个进程组， 67 为后台进程组， 68 为前台进程组。
 
 
 ## Example
